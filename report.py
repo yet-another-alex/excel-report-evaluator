@@ -1,5 +1,5 @@
 from openpyxl import load_workbook
-import queue
+import os
 
 COLOR_ERROR = '#8b0000'
 COLOR_OK = '#006400'
@@ -13,7 +13,7 @@ class Report:
 
 
 def report_thread(queue, filename, working_directory, search_color):
-    wb = load_workbook(working_directory + "/" + filename)
+    wb = load_workbook(os.path.join(working_directory, filename))
 
     lines = list()
     result = Report(filename, "", "")
