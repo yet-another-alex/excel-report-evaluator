@@ -40,7 +40,6 @@ def report_thread(queue, filename, working_directory, search_color):
     else:
         result.result = "ERROR"
         # save error lines
-        result.details += "Errors in the following lines:\n"
         for line in lines:
             result.details += line
             result.details += "\n"

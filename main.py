@@ -25,12 +25,12 @@ def choose_color():
     color = colorchooser.askcolor(parent=root, title="Select search criteria color")
     colorLabel.configure(bg=color[1])
     color_search = color[1].replace("#", "FF")                                          # currently required for actual HEX values to be correctly transferred to MS Excel aRGB
+    # color_search = 'FFFF0000'                                                         # dev-fix for askcolor returning the wrong values in MacOS
     color_result_rgb = ' '.join(str(int(x)) for x in color[0])
-    print(color_result_rgb) 
-    print(color[0])
-    print(color_search)
+
 
 def selection_changed(event):
+    outputText.delete(1.0, END)
     # check selected item
     selection = listbox.curselection()
     if selection:
@@ -40,8 +40,8 @@ def selection_changed(event):
         if(len(reports) > 0):
             matching_report = next(r for r in reports if r.name == selected_report)
 
-            if matching_report:
-                print(matching_report.details)
+            if matching_report and len(matching_report.details) > 0:
+                outputText.insert(1.0, matching_report.details)
 
 
 def scan_thread():
@@ -95,6 +95,7 @@ def reset():
     button_scan.configure(state='disabled')
     statuslabel.configure(text=" .. reset!")
     colorLabel.configure(bg=root.cget('bg'))
+    outputText.delete(1.0, END)
     # reset data
     excelfiles.clear()
     reports.clear()
@@ -113,11 +114,11 @@ color_search = '#FF0000'
 
 # define status label for info to user
 statuslabel = Label(root, text="waiting for reports...")
-statuslabel.grid(row=0, column=0, columnspan=6, padx='5', pady='5', sticky='W')
+statuslabel.grid(row=0, column=0, columnspan=5, padx='5', pady='5', sticky=W)
 
 # define listbox for reports
 listbox = Listbox(root, height=15, width=50, selectmode='single')
-listbox.grid(row=1, column=0, rowspan=4, columnspan=5, padx='5', pady='5', sticky='NSEW')
+listbox.grid(row=1, column=0, rowspan=4, columnspan=5, padx='5', pady='5', sticky=NSEW)
 listbox.bind("<<ListboxSelect>>", selection_changed)
 
 # buttons for user interaction - BASE actions
@@ -135,6 +136,10 @@ button_color.grid(row=8, column=0, columnspan=2, padx='5', pady='5')
 colorLabel = Label(root, text="* current search color *", bg=color_search)
 colorLabel.grid(row=8, column=2, columnspan=2, padx='5', pady='5')
 
+outputLabel = Label(root, text="Errors in the following lines:")
+outputLabel.grid(row=0, column=5, padx='5', pady='5', sticky=NSEW)
+outputText = Text(root, height=20, width=45)
+outputText.grid(row=1, column=5, rowspan=8, padx='5', pady='5', sticky=NSEW)
 
 if __name__ == '__main__':
     # app settings
