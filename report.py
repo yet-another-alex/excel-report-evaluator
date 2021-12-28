@@ -49,11 +49,13 @@ def report_thread(queue, filename, working_directory, rule):
                 if c.font.color.rgb == rule.compare:
                     found = True
             elif rule.type == "VALUE" and (type(c.value) == int or type(c.value) == float):
-                found = evaluate(c.value, rule.compare, rule.operator)
+                if evaluate(c.value, rule.compare, rule.operator):
+                    found = True
             elif rule.type == "COLVALUE" and (type(c.value) == int or type(c.value) == float):
                 if c.column == rule.col:
-                    found = evaluate(c.value, rule.compare, rule.operator)
-        
+                    if evaluate(c.value, rule.compare, rule.operator):
+                        found = True
+                        
         # search criteria was found
         if found:
             new_line = ""
