@@ -1,0 +1,33 @@
+{
+    "filename": "rules.json",
+    "ruleset": [
+        {
+            "col": -1,
+            "compare": "FFFF0000",
+            "name": "RED BG",
+            "operator": "==",
+            "type": "BGCOLOR"
+        },
+        {
+            "col": -1,
+            "compare": "FFFF0000",
+            "name": "RED FONT",
+            "operator": "==",
+            "type": "FONTCOLOR"
+        },
+        {
+            "col": -1,
+            "compare": 1200,
+            "name": "Value: above 1200",
+            "operator": ">",
+            "type": "VALUE"
+        },
+        {
+            "col": 7,
+            "compare": 1.015,
+            "name": "Col7 gt/e 1,015",
+            "operator": ">=",
+            "type": "COLVALUE"
+        }
+    ]
+}

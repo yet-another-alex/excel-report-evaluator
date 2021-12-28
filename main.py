@@ -1,7 +1,8 @@
 import threading
 import queue
 from tkinter import *
-from tkinter import filedialog, colorchooser
+from tkinter import filedialog, ttk
+from rules import Rules
 import report as rp
 import os
 
@@ -20,17 +21,7 @@ def openfolder():
         button_scan.config(state='normal')
 
 
-def choose_color():
-    global color_search
-    color = colorchooser.askcolor(parent=root, title="Select search criteria color")
-    colorLabel.configure(bg=color[1])
-    color_search = color[1].replace("#", "FF")                                          # currently required for actual HEX values to be correctly transferred to MS Excel aRGB
-    # color_search = 'FFFF0000'                                                         # dev-fix for askcolor returning the wrong values in MacOS
-    color_result_rgb = ' '.join(str(int(x)) for x in color[0])
-
-
 def selection_changed(event):
-    outputText.delete(1.0, END)
     # check selected item
     selection = listbox.curselection()
     if selection:
@@ -39,9 +30,15 @@ def selection_changed(event):
 
         if(len(reports) > 0):
             matching_report = next(r for r in reports if r.name == selected_report)
+            outputText.delete(1.0, END)
 
             if matching_report and len(matching_report.details) > 0:
                 outputText.insert(1.0, matching_report.details)
+
+
+def combo_selection_changed(event):
+    selected_rule = next(r for r in eval_rules.ruleset if r.name == combobox_rules.get())
+    rulelabel.configure(text=f"{selected_rule.type} {selected_rule.operator} {selected_rule.compare} (col: {selected_rule.col})")
 
 
 def scan_thread():
@@ -59,8 +56,11 @@ def scan_reports():
     thread_list = list()
     results = list()
 
+    # get evaluation type
+    selected_rule = next(r for r in eval_rules.ruleset if r.name == combobox_rules.get())
+
     for excel_file in excelfiles:
-        report_eval = threading.Thread(target=rp.report_thread, args=(queue_reports, excel_file, working_directory, color_search))
+        report_eval = threading.Thread(target=rp.report_thread, args=(queue_reports, excel_file, working_directory, selected_rule))
         report_eval.start()
         thread_list.append(report_eval)
 
@@ -76,15 +76,14 @@ def scan_reports():
 
 
 def evaluate_results(results):
-    i = 0
-    while i < listbox.size():
-      for report in results:
-        if report.result == "OK":
-            listbox.itemconfig(i, bg='green', selectbackground=rp.COLOR_OK)
-        elif report.result == "ERROR":
-            listbox.itemconfig(i, bg='red', selectbackground=rp.COLOR_ERROR)
-        i += 1
-    
+    for index, item in enumerate(listbox.get(0, END)):
+        print(item)
+        found_report = next(r for r in results if r.name == item)
+        if found_report.result == "OK":
+            listbox.itemconfig(index, bg='green', selectbackground=rp.COLOR_OK)
+        elif found_report.result == "ERROR":
+            listbox.itemconfig(index, bg='red', selectbackground=rp.COLOR_ERROR)
+
     button_reset.configure(state='normal')
 
 
@@ -94,7 +93,6 @@ def reset():
     button_open.configure(state='normal')
     button_scan.configure(state='disabled')
     statuslabel.configure(text=" .. reset!")
-    colorLabel.configure(bg=root.cget('bg'))
     outputText.delete(1.0, END)
     # reset data
     excelfiles.clear()
@@ -109,12 +107,26 @@ root = Tk()
 excelfiles = list()
 reports = list()
 
-global color_search
-color_search = '#FF0000'
+# combobox for rules
+combobox_rules = ttk.Combobox(root, state='readonly')
+combobox_rules.grid(row=0, column=0, columnspan=2, padx='5', pady='5', sticky=W)
+# load rules.json
+eval_rules = Rules("rules.json")
+eval_rules.load()
+combobox_rules.configure(values=eval_rules.ruleset)
+combobox_rules.bind("<<ComboboxSelected>>", combo_selection_changed)
+combobox_rules.current(0)
 
 # define status label for info to user
 statuslabel = Label(root, text="waiting for reports...")
-statuslabel.grid(row=0, column=0, columnspan=5, padx='5', pady='5', sticky=W)
+statuslabel.grid(row=8, column=0, columnspan=5, padx='5', pady='5', sticky=W)
+
+# rule label
+rulelabel = Label(root)
+rulelabel.grid(row=0, column=2, columnspan=5, padx='5', pady='5', sticky=W)
+
+# trigger combobox update
+combo_selection_changed(None)
 
 # define listbox for reports
 listbox = Listbox(root, height=15, width=50, selectmode='single')
@@ -130,15 +142,11 @@ button_reset = Button(root, text="Reset", command=reset)
 button_reset.grid(row=7, column=4, padx='5', pady='5')
 button_scan = Button(root, text="Start evaluation", command=scan_thread, state='disabled')
 button_scan.grid(row=7, column=2, columnspan=2, padx='5', pady='5')
-button_color = Button(root, text="Choose color", command=choose_color)
-button_color.grid(row=8, column=0, columnspan=2, padx='5', pady='5')
 
-colorLabel = Label(root, text="* current search color *", bg=color_search)
-colorLabel.grid(row=8, column=2, columnspan=2, padx='5', pady='5')
 
-outputLabel = Label(root, text="Errors in the following lines:")
-outputLabel.grid(row=0, column=5, padx='5', pady='5', sticky=NSEW)
-outputText = Text(root, height=20, width=45)
+outputlabel = Label(root, text="Errors in the following lines:")
+outputlabel.grid(row=0, column=5, padx='5', pady='5', sticky=NSEW)
+outputText = Text(root, height=20, width=60)
 outputText.grid(row=1, column=5, rowspan=8, padx='5', pady='5', sticky=NSEW)
 
 if __name__ == '__main__':
