@@ -2,15 +2,70 @@
 
 Simple Python GUI with Tkinter for evaluating Microsoft Excel reports (.xlsx-Files).
 
-At this point the approach is based on the cell background color. The GUI allows to open a local directory and will add all Excel files to a list.
-When processing the reports the chosen color will determine wether a report will pass (=not found) or not pass (=found).
+## Usage
 
-![Main GUI with Color Chooser](https://raw.githubusercontent.com/yet-another-alex/excel-report-evaluator/main/screens/screen1.png)
+Start *main.py* and choose one of the example rules that are currently included via the dropdown at the top left corner.
 
-Many automated reports have multiple hundreds of lines and are already configured to set the background color based on its status. This simple script can aid with the bulk evaluation.
+![Application started](https://raw.githubusercontent.com/yet-another-alex/excel-report-evaluator/main/screens/screen1.png)
 
-![Main GUI after report processing](https://raw.githubusercontent.com/yet-another-alex/excel-report-evaluator/main/screens/screen2.png)
+The rules will be explained in more detail below. The default is looking for a red background in any Excel-cell.
 
-In the above example test2 and test3 have no issues (meaning no red cells) and test1 has at least some issues (meaning some red cells).
+Now click "Choose directory" and select a directory that contains .xlsx-files for evaluation.
 
-Planned features are currently to extract the highlighted information and evaluate on a rule-based approach instead of by cell background color only.
+![Reports were added](https://raw.githubusercontent.com/yet-another-alex/excel-report-evaluator/main/screens/screen2.png)
+
+All .xlsx-files will be added to the list. Click "Start evaluation" to process the reports. Depending on file size this may take a while.
+
+![Reports are processed](https://raw.githubusercontent.com/yet-another-alex/excel-report-evaluator/main/screens/screen3.png)
+
+When the reports are processed the background color of the report in the list will change according to the selected ruleset.
+In the above example, test2 did not contain any cells with a red background, but test1 and test3 did.
+To see more details and extract the rows that contain the searched parameters, click on the report in the list.
+
+![Found lines are extracted and displayed](https://raw.githubusercontent.com/yet-another-alex/excel-report-evaluator/main/screens/screen4.png)
+
+When a report is flagged according to the specified rules, the affected lines will be displayed on the right in the Text widget.
+
+![more example extracted lines](https://raw.githubusercontent.com/yet-another-alex/excel-report-evaluator/main/screens/screen5.png)
+
+## JSON rule description
+
+The sample json file provided **rules.json** is an example for every possible rule currently implemented.
+The json file always needs to be named "rules.json" for now. Within the ruleset-list you can add, adjust or delete any of the components to your liking.
+
+Every rule is required to have several parameters.
+
+| parameter      | purpose       |
+| ------------- | ------------- |
+| col           | Column to look for the rule in, currently only works for the type VALUECOL - all other types take "-1" as a parameter.  |
+| compare  | The value that is being compared to the cell value within the Excel file. For Color this is an Excel-compatible Color Code, for values this is an alphanumeric value.  |
+| name  | The name of the rule that will be displayed in the GUI.  |
+| operator | The operator that will be used when comparing the cell value with the *compare*-value. Currently supports **==, >=, <=, !=, <, >** .  |
+| type  | The type of rule. See below for more information.  |
+
+
+An example JSON-description of the rule looking for a red background within a cell would look like this:
+
+        {
+            "col": -1,
+            "compare": "FFFF0000",
+            "name": "RED BG",
+            "operator": "==",
+            "type": "BGCOLOR"
+        }
+        
+
+### Rule Types
+
+| Rule Type  | description |
+| ------------- | ------------- |
+| BGCOLOR  | Looks for the background color of a cell.  |
+| FONTCOLOR  | Looks for the color of the font within a cell.  |
+| VALUE  | Looks to compare the cell value to the compare value based on the operator provided.  |
+| COLVALUE | Same as value, but only in the specified column.  |
+
+## Open ToDos
+
+- Comments (it's years old code for some parts and barely readable)
+- error handling (I'd say improving but it's more like adding ..)
+- adding more rules
