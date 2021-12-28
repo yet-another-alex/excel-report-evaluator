@@ -77,7 +77,6 @@ def scan_reports():
 
 def evaluate_results(results):
     for index, item in enumerate(listbox.get(0, END)):
-        print(item)
         found_report = next(r for r in results if r.name == item)
         if found_report.result == "OK":
             listbox.itemconfig(index, bg='green', selectbackground=rp.COLOR_OK)
