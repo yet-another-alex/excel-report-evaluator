@@ -37,7 +37,7 @@ Every rule is required to have several parameters.
 
 | parameter      | purpose       |
 | ------------- | ------------- |
-| col           | Column to look for the rule in, currently only works for the type VALUECOL - all other types take "-1" as a parameter.  |
+| col           | Column to use for evaluation. -1 means all columns will be evaluated.  |
 | compare  | The value that is being compared to the cell value within the Excel file. For Color this is an Excel-compatible Color Code, for values this is an alphanumeric value.  |
 | name  | The name of the rule that will be displayed in the GUI.  |
 | operator | The operator that will be used when comparing the cell value with the *compare*-value. Currently supports **==, >=, <=, !=, <, >** .  |
@@ -53,6 +53,16 @@ An example JSON-description of the rule looking for a red background within a ce
             "operator": "==",
             "type": "BGCOLOR"
         }
+
+If you wanted to modify this example to only look for a red background in column 7, it could look like this:
+
+        {
+            "col": 7,
+            "compare": "FFFF0000",
+            "name": "RED BG C7",
+            "operator": "==",
+            "type": "BGCOLOR"
+        }
         
 
 ### Rule Types
@@ -63,9 +73,3 @@ An example JSON-description of the rule looking for a red background within a ce
 | FONTCOLOR  | Looks for the color of the font within a cell.  |
 | VALUE  | Looks to compare the cell value to the compare value based on the operator provided.  |
 | COLVALUE | Same as value, but only in the specified column.  |
-
-## Open ToDos
-
-- Comments (it's years old code for some parts and barely readable)
-- error handling (I'd say improving but it's more like adding ..)
-- adding more rules

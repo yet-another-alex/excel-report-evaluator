@@ -27,7 +27,7 @@
             "compare": 1.015,
             "name": "Col7 gt/e 1,015",
             "operator": ">=",
-            "type": "COLVALUE"
+            "type": "VALUE"
         }
     ]
 }
