@@ -72,4 +72,3 @@ If you wanted to modify this example to only look for a red background in column
 | BGCOLOR  | Looks for the background color of a cell.  |
 | FONTCOLOR  | Looks for the color of the font within a cell.  |
 | VALUE  | Looks to compare the cell value to the compare value based on the operator provided.  |
-| COLVALUE | Same as value, but only in the specified column.  |
